@@ -1,0 +1,77 @@
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {
+  NavigationContainer,
+  ParamListBase,
+  RouteProp,
+} from '@react-navigation/native';
+import React, {useEffect} from 'react';
+import {Dashboard} from './components/screens/dashboard/Dashboard';
+import {useDispatch, useSelector} from 'react-redux';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {Login} from './components/screens/login/Login';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {List} from './components/screens/list/List';
+import {Profile} from './components/screens/profile/Profile';
+import {getData, HOME, LIST, PROFILE, USER_KEY} from '../shared';
+import {LOGIN, USER} from '../sclice/crudSclice';
+
+const renderTabBarIcon = (
+  route: RouteProp<ParamListBase, string>,
+  focused: boolean,
+  color: string,
+  size: number,
+) => {
+  let iconName = '';
+  if (route.name === HOME) {
+    iconName = focused ? 'home' : 'home-outline';
+  }
+  if (route.name === LIST) {
+    iconName = focused ? 'list' : 'list-outline';
+  }
+  if (route.name === PROFILE) {
+    iconName = focused ? 'person-circle' : 'person-circle-outline';
+  }
+
+  return <Icon name={iconName} color={color} size={size} />;
+};
+
+export const Home = () => {
+  const dispatch = useDispatch();
+  const Tab = createBottomTabNavigator();
+  const isLogin = useSelector(state => (state as any).quotes.isLogin);
+
+  useEffect(() => {
+    if (!isLogin) {
+      getData(USER_KEY).then(value => {
+        if (value) {
+          const userLogin = JSON.parse(value);
+          dispatch(USER(userLogin));
+          dispatch(LOGIN(true));
+        }
+      });
+    }
+  }, [dispatch, isLogin]);
+
+  return (
+    <SafeAreaProvider>
+      {isLogin ? (
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Tab.Navigator
+              initialRouteName={HOME}
+              screenOptions={({route}) => ({
+                tabBarIcon: ({focused, color, size}) =>
+                  renderTabBarIcon(route, focused, color, size),
+              })}>
+              <Tab.Screen name={HOME} component={Dashboard} />
+              <Tab.Screen name={LIST} component={List} />
+              <Tab.Screen name={PROFILE} component={Profile} />
+            </Tab.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      ) : (
+        <Login />
+      )}
+    </SafeAreaProvider>
+  );
+};
