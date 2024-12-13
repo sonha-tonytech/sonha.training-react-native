@@ -5,15 +5,15 @@ import {
   RouteProp,
 } from '@react-navigation/native';
 import React, {useEffect} from 'react';
-import {Dashboard} from './components/screens/dashboard/Dashboard';
 import {useDispatch, useSelector} from 'react-redux';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Login} from './components/screens/login/Login';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {List} from './components/screens/list/List';
 import {Profile} from './components/screens/profile/Profile';
 import {getData, HOME, LIST, PROFILE, USER_KEY} from '../shared';
 import {LOGIN, USER} from '../sclice/crudSclice';
+import {DashboardTab} from './components/navigation/Dashboard';
+import {ListTab} from './components/navigation/List';
 
 const renderTabBarIcon = (
   route: RouteProp<ParamListBase, string>,
@@ -63,8 +63,8 @@ export const Home = () => {
                 tabBarIcon: ({focused, color, size}) =>
                   renderTabBarIcon(route, focused, color, size),
               })}>
-              <Tab.Screen name={HOME} component={Dashboard} />
-              <Tab.Screen name={LIST} component={List} />
+              <Tab.Screen name={HOME} component={DashboardTab} />
+              <Tab.Screen name={LIST} component={ListTab} />
               <Tab.Screen name={PROFILE} component={Profile} />
             </Tab.Navigator>
           </NavigationContainer>

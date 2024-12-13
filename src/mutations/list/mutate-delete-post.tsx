@@ -1,4 +1,4 @@
-import {ItemData} from '../../../shared/type/data';
+import {ItemData} from 'shared/type/data';
 import fetcher from '../../fetcher';
 
 type Params = {

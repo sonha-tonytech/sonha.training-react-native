@@ -9,8 +9,8 @@ import {
   View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {removeData, User, USER_KEY} from '../../../../shared';
-import {updateUser} from '../../../mutations';
+import {removeData, User, USER_KEY} from 'shared';
+import {updateUser} from 'src/mutations';
 import {LOGIN, USER} from '../../../../sclice/crudSclice';
 
 export const Profile = () => {

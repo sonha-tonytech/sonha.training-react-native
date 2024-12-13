@@ -1,7 +1,7 @@
 import {StyleSheet, View, Text, TextInput} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {AppModal} from '../../cores/modals/Modal';
-import {ItemData} from '../../../../shared';
+import {AppModal} from 'src/components/cores/modals/Modal';
+import {ItemData} from 'shared';
 
 type AddEditItemModalProps = {
   isOpen: boolean;

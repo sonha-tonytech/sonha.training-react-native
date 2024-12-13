@@ -14,6 +14,7 @@ import {
   createQuote,
   DELETE_DATA,
   deleteQuote,
+  DETAILS,
   getData,
   getPaginationSkipValue,
   handleShowModal,
@@ -23,17 +24,17 @@ import {
   UPDATED_DATA,
   updateQuote,
   User,
-} from '../../../../shared';
-import {createPost, deletePost, updatePost} from '../../../mutations';
-import {getAllLists, getUsers} from '../../../queries';
+} from 'shared';
+import {createPost, deletePost, updatePost} from 'src/mutations';
+import {getAllLists, getUsers} from 'src/queries';
 import {GET_DATA} from '../../../../sclice/crudSclice';
 import {Item} from './Item';
 import {AddEditItemModal} from './AddEditItemModal';
 import {DeleteItemModal} from './DeleteItemModal';
 import uuid from 'react-native-uuid';
-import {CircleLoader} from '../../cores/loadings/circle-loader';
+import {CircleLoader} from 'src/components/cores/loadings/circle-loader';
 
-export const List = () => {
+export const List = ({navigation}: any) => {
   const isDarkMode = useColorScheme() === 'dark';
   const data: ItemData[] = useSelector(state => (state as any).quotes.list);
   const user: User | null = useSelector(state => (state as any).quotes.user);
@@ -62,6 +63,10 @@ export const List = () => {
   const onClickCloseModal = () => {
     setShowModalControl(undefined);
     handleShowModal(dispatch, false);
+  };
+
+  const onClickShowItemDetails = (item: ItemData) => {
+    navigation.navigate(DETAILS, {itemId: item.id});
   };
 
   const handleSave = (body: ItemData) => {
@@ -162,65 +167,6 @@ export const List = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getAllLists({
-      _start: 0,
-      _limit: limit,
-    }).then(async posts => {
-      if (posts && posts.length > 0) {
-        let _post = [...posts];
-
-        // Create storage data
-        await getData(CREATED_DATA).then(async values => {
-          const createdItems: ItemData[] = values ? JSON.parse(values) : [];
-          if (createdItems.length > 0) {
-            const newCreatedItems = await Promise.all(
-              createdItems.map(item => createPost(item)),
-            );
-            await storeData(CREATED_DATA, JSON.stringify([]));
-
-            _post = [..._post, ...(newCreatedItems as ItemData[])];
-          }
-        });
-
-        // Update storage data
-        await getData(UPDATED_DATA).then(async values => {
-          const updatedItems: ItemData[] = values ? JSON.parse(values) : [];
-          if (updatedItems.length > 0) {
-            await Promise.all(updatedItems.map(item => updatePost(item)));
-            await storeData(UPDATED_DATA, JSON.stringify([]));
-
-            _post = _post.map(item => {
-              const findUpdatedItem = updatedItems.find(
-                element => element.id === item.id,
-              );
-              return findUpdatedItem ?? item;
-            });
-          }
-        });
-
-        // Delete storage data
-        await getData(DELETE_DATA).then(async values => {
-          const deleteItemIds: string[] = values ? JSON.parse(values) : [];
-          if (deleteItemIds.length > 0) {
-            await Promise.all(deleteItemIds.map(id => deletePost({id})));
-            await storeData(DELETE_DATA, JSON.stringify([]));
-
-            _post = _post.filter(item => !deleteItemIds.includes(item.id));
-          }
-        });
-
-        dispatch(
-          GET_DATA(
-            _post.sort(
-              (a, b) =>
-                (new Date(b.body.updateAt).getTime() || 0) -
-                (new Date(a.body.updateAt).getTime() || 0),
-            ),
-          ),
-        );
-      }
-    });
-
     getUsers().then(members => {
       if (members) {
         setUsers(members);
@@ -256,6 +202,7 @@ export const List = () => {
               item={item}
               user={getUserByUserId(item.body.userId)}
               onClickShowModal={onClickShowModal}
+              onClickShowItemDetails={onClickShowItemDetails}
             />
           )}
           keyExtractor={(item: ItemData) => item.id}

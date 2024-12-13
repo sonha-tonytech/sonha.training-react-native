@@ -1,7 +1,7 @@
 import {StyleSheet, View, Text} from 'react-native';
 import React from 'react';
-import {AppModal} from '../../cores/modals/Modal';
-import {ItemData} from '../../../../shared';
+import {AppModal} from 'src/components/cores/modals/Modal';
+import {ItemData} from 'shared';
 
 type DeleteItemModalProps = {
   isOpen: boolean;

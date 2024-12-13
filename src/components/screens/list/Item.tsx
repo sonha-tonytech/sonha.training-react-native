@@ -1,6 +1,6 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {getFirstNameUser, ItemData, User} from '../../../../shared';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {getFirstNameUser, ItemData, User} from 'shared';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {format} from 'date-fns';
@@ -9,14 +9,22 @@ type ItemProps = {
   item: ItemData;
   user?: User;
   onClickShowModal: (id?: string, mode?: 'add' | 'edit' | 'delete') => void;
+  onClickShowItemDetails: (item: ItemData) => void;
 };
 
-export const Item = ({item, user, onClickShowModal}: ItemProps) => {
+export const Item = ({
+  item,
+  user,
+  onClickShowModal,
+  onClickShowItemDetails,
+}: ItemProps) => {
   return (
     <View key={item.id} style={styles.itemContainer}>
       <View style={styles.titleContainer}>
         <View style={styles.itemTitleContainer}>
-          <Text style={styles.itemTitle}>{item.body.title}</Text>
+          <TouchableOpacity onPress={onClickShowItemDetails?.bind(this, item)}>
+            <Text style={styles.itemTitle}>{item.body.title}</Text>
+          </TouchableOpacity>
           <FontAwesome
             name={'edit'}
             size={16}

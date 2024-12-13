@@ -1,4 +1,4 @@
-import {User} from '../../../shared/type/user';
+import {User} from 'shared/type/user';
 import fetcher from '../../fetcher';
 
 type Response = User[];

@@ -7,10 +7,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {getUsers} from '../../../queries';
+import {getUsers} from 'src/queries';
 import {useDispatch} from 'react-redux';
 import {LOGIN, USER} from '../../../../sclice/crudSclice';
-import {storeData, USER_KEY} from '../../../../shared';
+import {storeData, upperCaseFirstLetter, USER_KEY} from 'shared';
 
 export const Login = () => {
   const dispatch = useDispatch();
@@ -22,7 +22,9 @@ export const Login = () => {
       .then(data => {
         const loginUser = data?.find(
           user =>
-            user.body.userName.toUpperCase() === userName.toUpperCase() &&
+            (user.body.userName === userName ||
+              upperCaseFirstLetter(user.body.userName) ===
+                upperCaseFirstLetter(userName)) &&
             user.body.pass.toUpperCase() === passWord.toUpperCase(),
         );
         if (loginUser !== undefined) {
@@ -47,6 +49,7 @@ export const Login = () => {
             value={userName}
             onChangeText={setUserName}
             style={styles.textInput}
+            autoCapitalize="none"
           />
         </View>
       </View>
@@ -59,6 +62,7 @@ export const Login = () => {
             onChangeText={setPassword}
             style={styles.textInput}
             secureTextEntry
+            autoCapitalize="none"
           />
         </View>
       </View>
