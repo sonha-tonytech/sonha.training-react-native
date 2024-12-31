@@ -1,23 +1,22 @@
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {getFirstNameUser, ItemData, User} from 'shared';
+import {getFirstNameUser, ItemData} from 'shared';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {format} from 'date-fns';
 
 type ItemProps = {
   item: ItemData;
-  user?: User;
   onClickShowModal: (id?: string, mode?: 'add' | 'edit' | 'delete') => void;
   onClickShowItemDetails: (item: ItemData) => void;
 };
 
 export const Item = ({
   item,
-  user,
   onClickShowModal,
   onClickShowItemDetails,
 }: ItemProps) => {
+
   return (
     <View key={item.id} style={styles.itemContainer}>
       <View style={styles.titleContainer}>
@@ -40,7 +39,7 @@ export const Item = ({
         </View>
         <View style={styles.userContainer}>
           <Text style={styles.userItem}>
-            {getFirstNameUser(user?.body.name ?? '')}
+            {getFirstNameUser(item.body.user.body.name ?? '')}
           </Text>
           <View style={styles.dot} />
           <Text style={styles.userItem}>

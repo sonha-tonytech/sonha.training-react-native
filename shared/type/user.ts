@@ -3,6 +3,6 @@ export type User = {
   body: {
     name: string;
     userName: string;
-    pass: string;
+    password: string;
   };
 };

@@ -26,7 +26,7 @@ export const Profile = () => {
         body: {
           ...user.body,
           name,
-          pass: passWord,
+          password: passWord,
         },
       };
       updateUser(data)
@@ -51,7 +51,7 @@ export const Profile = () => {
   useEffect(() => {
     if (user) {
       setName(user.body.name);
-      setPassword(user.body.pass);
+      setPassword(user.body.password);
     }
   }, [user]);
 

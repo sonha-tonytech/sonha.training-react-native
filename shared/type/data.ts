@@ -1,3 +1,5 @@
+import {User} from './user';
+
 export type ItemData = {
   id: string;
   body: {
@@ -5,5 +7,6 @@ export type ItemData = {
     text: string;
     userId: string;
     updateAt: string;
+    user: User;
   };
 };

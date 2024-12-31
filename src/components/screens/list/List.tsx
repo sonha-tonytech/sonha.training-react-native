@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   Button,
   FlatList,
@@ -26,7 +26,7 @@ import {
   User,
 } from 'shared';
 import {createPost, deletePost, updatePost} from 'src/mutations';
-import {getAllLists, getUsers} from 'src/queries';
+import {getAllLists} from 'src/queries';
 import {GET_DATA} from '../../../../sclice/crudSclice';
 import {Item} from './Item';
 import {AddEditItemModal} from './AddEditItemModal';
@@ -41,7 +41,6 @@ export const List = ({navigation}: any) => {
   const isOpen: boolean = useSelector(state => (state as any).quotes.modalOpen);
   const loading: boolean = useSelector(state => (state as any).quotes.loading);
   const [page, setPage] = useState<number>(1);
-  const [users, setUsers] = useState<User[]>([]);
   const [hasData, setHasData] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
@@ -97,15 +96,25 @@ export const List = ({navigation}: any) => {
       }
       if (mode === 'edit') {
         updatePost(body).then(value => {
+          const updatedItem: ItemData = {
+            ...body,
+            body: {
+              ...body.body,
+              user: user ?? body.body.user,
+            },
+          };
           if (value === NETWORD_ERROR) {
             getData(UPDATED_DATA).then(element => {
               const updatedItems: ItemData[] = element
                 ? JSON.parse(element)
                 : [];
-              storeData(UPDATED_DATA, JSON.stringify([...updatedItems, body]));
+              storeData(
+                UPDATED_DATA,
+                JSON.stringify([...updatedItems, updatedItem]),
+              );
             });
           }
-          updateQuote(dispatch, body);
+          updateQuote(dispatch, updatedItem);
         });
       }
       if (mode === 'delete') {
@@ -128,15 +137,9 @@ export const List = ({navigation}: any) => {
     }
   };
 
-  const getUserByUserId = useCallback(
-    (userId: string) => {
-      return users.find(member => member.id === userId);
-    },
-    [users],
-  );
-
   const handleFetchData = useCallback(() => {
     if (hasData) {
+      setIsLoading(true);
       const newPage = page + 1;
       setPage(newPage);
       getAllLists({
@@ -153,27 +156,9 @@ export const List = ({navigation}: any) => {
           setHasData(false);
         }
       });
+      setIsLoading(false);
     }
   }, [data, hasData, page, dispatch]);
-
-  useEffect(() => {
-    if (user && users.length > 0) {
-      const findUser = users.find(member => member.id === user.id);
-      if (findUser && findUser.body.name !== user.body.name) {
-        setUsers(users.map(member => (member.id === user.id ? user : member)));
-      }
-    }
-  }, [user, users]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    getUsers().then(members => {
-      if (members) {
-        setUsers(members);
-      }
-    });
-    setIsLoading(false);
-  }, [dispatch]);
 
   return (
     <>
@@ -200,7 +185,6 @@ export const List = ({navigation}: any) => {
           renderItem={({item}) => (
             <Item
               item={item}
-              user={getUserByUserId(item.body.userId)}
               onClickShowModal={onClickShowModal}
               onClickShowItemDetails={onClickShowItemDetails}
             />

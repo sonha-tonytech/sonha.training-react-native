@@ -7,17 +7,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {DETAILS, ItemData, User} from 'shared';
+import {DETAILS, ItemData} from 'shared';
 import {useSelector} from 'react-redux';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {format} from 'date-fns';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import { getUsers } from 'src/queries';
 
 export const ItemDetail = ({navigation, route}: any) => {
   const data: ItemData[] = useSelector(state => (state as any).quotes.list);
   const [item, setItem] = useState<ItemData>();
-  const [user, setUser] = useState<User>();
 
   const handleNavigateToItemDetail = (id: string) => {
     if (id !== item?.id) {
@@ -32,10 +30,6 @@ export const ItemDetail = ({navigation, route}: any) => {
       const findItem = data.find(i => i.id === itemId);
       if (findItem) {
         setItem(findItem);
-        getUsers().then(users => {
-          const findUser = users?.find(u => u.id === findItem.body.userId);
-          setUser(findUser);
-        });
       }
     }
   }, [data, route.params]);
@@ -70,7 +64,9 @@ export const ItemDetail = ({navigation, route}: any) => {
         </View>
         <View style={styles.fieldContainer}>
           <Text style={styles.title}>Created By</Text>
-          <Text style={styles.description}>{user?.body.name ?? null}</Text>
+          <Text style={styles.description}>
+            {item?.body.user.body.name ?? null}
+          </Text>
         </View>
         <TouchableOpacity
           onPress={() => navigation.goBack()}

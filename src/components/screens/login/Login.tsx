@@ -7,10 +7,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {getUsers} from 'src/queries';
+import {getLoginUser} from 'src/queries';
 import {useDispatch} from 'react-redux';
 import {LOGIN, USER} from '../../../../sclice/crudSclice';
-import {storeData, upperCaseFirstLetter, USER_KEY} from 'shared';
+import {storeData, USER_KEY} from 'shared';
 
 export const Login = () => {
   const dispatch = useDispatch();
@@ -18,15 +18,11 @@ export const Login = () => {
   const [passWord, setPassword] = useState<string>('');
 
   const handleLogin = () => {
-    getUsers()
-      .then(data => {
-        const loginUser = data?.find(
-          user =>
-            (user.body.userName === userName ||
-              upperCaseFirstLetter(user.body.userName) ===
-                upperCaseFirstLetter(userName)) &&
-            user.body.pass.toUpperCase() === passWord.toUpperCase(),
-        );
+    getLoginUser({
+      userName,
+      password: passWord,
+    })
+      .then(loginUser => {
         if (loginUser !== undefined) {
           //Session will storage in 3 days = 259200000 mil
           storeData(USER_KEY, JSON.stringify(loginUser), 259200000)
