@@ -8,9 +8,14 @@ type Params = {
 
 type Response = ItemData[];
 
-export const getAllLists = async (params: Params) => {
+export const getAllLists = async (params: Params, token: string) => {
   try {
-    const res = await fetcher.get<Response>('/list', {params});
+    const res = await fetcher.get<Response>('/list', {
+      params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     console.log(error);

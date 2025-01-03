@@ -7,9 +7,13 @@ type Params = {
 
 type Response = ItemData;
 
-export const deletePost = async ({id}: Params) => {
+export const deletePost = async ({id}: Params, token: string) => {
   try {
-    const res = await fetcher.delete<Response>(`/list/${id}`);
+    const res = await fetcher.delete<Response>(`/list/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     return (error as any).code as string;

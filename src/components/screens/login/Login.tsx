@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import {getLoginUser} from 'src/queries';
 import {useDispatch} from 'react-redux';
-import {LOGIN, USER} from '../../../../sclice/crudSclice';
-import {storeData, USER_KEY} from 'shared';
+import {LOGIN, TOKEN, USER} from '../../../../sclice/crudSclice';
+import {storeData, USER_TOKEN, USER_KEY} from 'shared';
 
 export const Login = () => {
   const dispatch = useDispatch();
@@ -25,9 +25,15 @@ export const Login = () => {
       .then(loginUser => {
         if (loginUser !== undefined) {
           //Session will storage in 3 days = 259200000 mil
-          storeData(USER_KEY, JSON.stringify(loginUser), 259200000)
+          storeData(USER_TOKEN, JSON.stringify(loginUser.token), 259200000)
             .then(() => {
-              dispatch(USER(loginUser));
+              dispatch(TOKEN(loginUser.token));
+            })
+            .catch(err => console.log(err));
+
+          storeData(USER_KEY, JSON.stringify(loginUser.user), 259200000)
+            .then(() => {
+              dispatch(USER(loginUser.user));
               dispatch(LOGIN(true));
             })
             .catch(err => console.log(err));

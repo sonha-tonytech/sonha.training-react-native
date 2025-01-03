@@ -9,18 +9,21 @@ import {
   View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {removeData, User, USER_KEY} from 'shared';
+import {removeData, User, USER_KEY, USER_TOKEN} from 'shared';
 import {updateUser} from 'src/mutations';
-import {LOGIN, USER} from '../../../../sclice/crudSclice';
+import {LOGIN, TOKEN, USER} from '../../../../sclice/crudSclice';
 
 export const Profile = () => {
   const dispatch = useDispatch();
   const user: User | null = useSelector(state => (state as any).quotes.user);
+  const token: string | null = useSelector(
+    state => (state as any).quotes.token,
+  );
   const [name, setName] = useState<string>('');
   const [passWord, setPassword] = useState<string>('');
 
   const handleUpdate = () => {
-    if (user) {
+    if (user && token) {
       const data = {
         ...user,
         body: {
@@ -29,7 +32,7 @@ export const Profile = () => {
           password: passWord,
         },
       };
-      updateUser(data)
+      updateUser(data, token)
         .then(updatedUser => {
           if (updatedUser) {
             dispatch(USER(updatedUser));
@@ -44,8 +47,10 @@ export const Profile = () => {
 
   const handleLogout = () => {
     removeData(USER_KEY);
+    removeData(USER_TOKEN);
     dispatch(USER(null));
     dispatch(LOGIN(false));
+    dispatch(TOKEN(null));
   };
 
   useEffect(() => {

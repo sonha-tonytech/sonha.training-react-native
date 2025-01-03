@@ -14,6 +14,7 @@ const UPDATE_ONE: ActionCreatorWithPayload<ItemData> =
   createAction('update-one');
 const GET_DATA: ActionCreatorWithPayload<ItemData[]> = createAction('get-data');
 const USER: ActionCreatorWithPayload<User | null> = createAction('user');
+const TOKEN: ActionCreatorWithPayload<string | null> = createAction('token');
 
 type InitialStateType = {
   modalOpen: boolean;
@@ -21,6 +22,7 @@ type InitialStateType = {
   isLogin: boolean;
   list: ItemData[];
   user: User | null;
+  token: string | null;
 };
 
 const initialState: InitialStateType = {
@@ -29,6 +31,7 @@ const initialState: InitialStateType = {
   isLogin: false,
   list: [],
   user: null,
+  token: null,
 };
 // Create new
 const Quote = createReducer(initialState, builder => {
@@ -117,6 +120,13 @@ const Quote = createReducer(initialState, builder => {
       user: action.payload,
     };
   });
+
+  builder.addCase(TOKEN, (state, action) => {
+    return {
+      ...state,
+      token: action.payload,
+    };
+  });
 });
 
 export default Quote;
@@ -130,4 +140,5 @@ export {
   GET_DATA,
   LOGIN,
   USER,
+  TOKEN,
 };

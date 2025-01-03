@@ -38,6 +38,9 @@ export const List = ({navigation}: any) => {
   const isDarkMode = useColorScheme() === 'dark';
   const data: ItemData[] = useSelector(state => (state as any).quotes.list);
   const user: User | null = useSelector(state => (state as any).quotes.user);
+  const token: string | null = useSelector(
+    state => (state as any).quotes.token,
+  );
   const isOpen: boolean = useSelector(state => (state as any).quotes.modalOpen);
   const loading: boolean = useSelector(state => (state as any).quotes.loading);
   const [page, setPage] = useState<number>(1);
@@ -69,10 +72,10 @@ export const List = ({navigation}: any) => {
   };
 
   const handleSave = (body: ItemData) => {
-    if (showModalControl) {
+    if (showModalControl && token) {
       const {mode} = showModalControl;
       if (mode === 'add') {
-        createPost(body).then(value => {
+        createPost(body, token).then(value => {
           if (value === NETWORD_ERROR) {
             const id = uuid.v4();
             const newData = {
@@ -95,7 +98,7 @@ export const List = ({navigation}: any) => {
         });
       }
       if (mode === 'edit') {
-        updatePost(body).then(value => {
+        updatePost(body, token).then(value => {
           const updatedItem: ItemData = {
             ...body,
             body: {
@@ -118,7 +121,7 @@ export const List = ({navigation}: any) => {
         });
       }
       if (mode === 'delete') {
-        deletePost({id: body.id}).then(value => {
+        deletePost({id: body.id}, token).then(value => {
           if (value === NETWORD_ERROR) {
             getData(DELETE_DATA).then(element => {
               const deleteItemIds: string[] = element
@@ -138,18 +141,21 @@ export const List = ({navigation}: any) => {
   };
 
   const handleFetchData = useCallback(() => {
-    if (hasData) {
+    if (hasData && token) {
       setIsLoading(true);
       const newPage = page + 1;
       setPage(newPage);
-      getAllLists({
-        _start:
-          getPaginationSkipValue({
-            page: newPage,
-            take: limit,
-          }) + 1,
-        _limit: limit,
-      }).then(posts => {
+      getAllLists(
+        {
+          _start:
+            getPaginationSkipValue({
+              page: newPage,
+              take: limit,
+            }) + 1,
+          _limit: limit,
+        },
+        token,
+      ).then(posts => {
         if (posts && posts.length > 0) {
           dispatch(GET_DATA([...data, ...posts]));
         } else {
@@ -158,7 +164,7 @@ export const List = ({navigation}: any) => {
       });
       setIsLoading(false);
     }
-  }, [data, hasData, page, dispatch]);
+  }, [data, hasData, page, token, dispatch]);
 
   return (
     <>

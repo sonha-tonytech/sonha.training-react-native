@@ -33,6 +33,9 @@ export const Dashboard = ({navigation}: any) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const data: ItemData[] = useSelector(state => (state as any).quotes.list);
+  const token: string | null = useSelector(
+    state => (state as any).quotes.token,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [randomItem, setRandomItem] = useState<ItemData>();
   const backgroundStyle = {
@@ -48,67 +51,76 @@ export const Dashboard = ({navigation}: any) => {
   }, [data]);
 
   useEffect(() => {
-    setIsLoading(true);
-    getAllLists({
-      _start: 0,
-      _limit: limit,
-    }).then(async posts => {
-      if (posts && posts.length > 0) {
-        let _post = [...posts];
+    if (token) {
+      setIsLoading(true);
+      getAllLists(
+        {
+          _start: 0,
+          _limit: limit,
+        },
+        token,
+      ).then(async posts => {
+        if (posts && posts.length > 0) {
+          let _post = [...posts];
 
-        // Create storage data
-        await getData(CREATED_DATA).then(async values => {
-          const createdItems: ItemData[] = values ? JSON.parse(values) : [];
-          if (createdItems.length > 0) {
-            const newCreatedItems = await Promise.all(
-              createdItems.map(item => createPost(item)),
-            );
-            await storeData(CREATED_DATA, JSON.stringify([]));
-
-            _post = [..._post, ...(newCreatedItems as ItemData[])];
-          }
-        });
-
-        // Update storage data
-        await getData(UPDATED_DATA).then(async values => {
-          const updatedItems: ItemData[] = values ? JSON.parse(values) : [];
-          if (updatedItems.length > 0) {
-            await Promise.all(updatedItems.map(item => updatePost(item)));
-            await storeData(UPDATED_DATA, JSON.stringify([]));
-
-            _post = _post.map(item => {
-              const findUpdatedItem = updatedItems.find(
-                element => element.id === item.id,
+          // Create storage data
+          await getData(CREATED_DATA).then(async values => {
+            const createdItems: ItemData[] = values ? JSON.parse(values) : [];
+            if (createdItems.length > 0) {
+              const newCreatedItems = await Promise.all(
+                createdItems.map(item => createPost(item, token)),
               );
-              return findUpdatedItem ?? item;
-            });
-          }
-        });
+              await storeData(CREATED_DATA, JSON.stringify([]));
 
-        // Delete storage data
-        await getData(DELETE_DATA).then(async values => {
-          const deleteItemIds: string[] = values ? JSON.parse(values) : [];
-          if (deleteItemIds.length > 0) {
-            await Promise.all(deleteItemIds.map(id => deletePost({id})));
-            await storeData(DELETE_DATA, JSON.stringify([]));
+              _post = [..._post, ...(newCreatedItems as ItemData[])];
+            }
+          });
 
-            _post = _post.filter(item => !deleteItemIds.includes(item.id));
-          }
-        });
+          // Update storage data
+          await getData(UPDATED_DATA).then(async values => {
+            const updatedItems: ItemData[] = values ? JSON.parse(values) : [];
+            if (updatedItems.length > 0) {
+              await Promise.all(
+                updatedItems.map(item => updatePost(item, token)),
+              );
+              await storeData(UPDATED_DATA, JSON.stringify([]));
 
-        dispatch(
-          GET_DATA(
-            _post.sort(
-              (a, b) =>
-                (new Date(b.body.updateAt).getTime() || 0) -
-                (new Date(a.body.updateAt).getTime() || 0),
+              _post = _post.map(item => {
+                const findUpdatedItem = updatedItems.find(
+                  element => element.id === item.id,
+                );
+                return findUpdatedItem ?? item;
+              });
+            }
+          });
+
+          // Delete storage data
+          await getData(DELETE_DATA).then(async values => {
+            const deleteItemIds: string[] = values ? JSON.parse(values) : [];
+            if (deleteItemIds.length > 0) {
+              await Promise.all(
+                deleteItemIds.map(id => deletePost({id}, token)),
+              );
+              await storeData(DELETE_DATA, JSON.stringify([]));
+
+              _post = _post.filter(item => !deleteItemIds.includes(item.id));
+            }
+          });
+
+          dispatch(
+            GET_DATA(
+              _post.sort(
+                (a, b) =>
+                  (new Date(b.body.updateAt).getTime() || 0) -
+                  (new Date(a.body.updateAt).getTime() || 0),
+              ),
             ),
-          ),
-        );
-      }
-    });
-    setIsLoading(false);
-  }, [dispatch]);
+          );
+        }
+      });
+      setIsLoading(false);
+    }
+  }, [dispatch, token]);
 
   return (
     <>

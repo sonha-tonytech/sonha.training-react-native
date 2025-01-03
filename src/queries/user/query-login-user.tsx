@@ -6,7 +6,10 @@ type Params = {
   password: string;
 };
 
-type Response = User;
+type Response = {
+  user: User;
+  token: string;
+};
 
 export const getLoginUser = async (params: Params) => {
   try {

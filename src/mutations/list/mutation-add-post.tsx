@@ -5,9 +5,13 @@ type Params = ItemData;
 
 type Response = ItemData;
 
-export const createPost = async (params: Params) => {
+export const createPost = async (params: Params, token: string) => {
   try {
-    const res = await fetcher.post<Response>('/list', params);
+    const res = await fetcher.post<Response>('/list', params, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     return (error as any).code as string;

@@ -10,8 +10,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Login} from './components/screens/login/Login';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Profile} from './components/screens/profile/Profile';
-import {getData, HOME, LIST, PROFILE, USER_KEY} from '../shared';
-import {LOGIN, USER} from '../sclice/crudSclice';
+import {getData, HOME, LIST, PROFILE, USER_KEY, USER_TOKEN} from '../shared';
+import {LOGIN, TOKEN, USER} from '../sclice/crudSclice';
 import {DashboardTab} from './components/navigation/Dashboard';
 import {ListTab} from './components/navigation/List';
 
@@ -42,11 +42,21 @@ export const Home = () => {
 
   useEffect(() => {
     if (!isLogin) {
-      getData(USER_KEY).then(value => {
+      getData(USER_TOKEN).then(value => {
         if (value) {
-          const userLogin = JSON.parse(value);
-          dispatch(USER(userLogin));
-          dispatch(LOGIN(true));
+          const token = JSON.parse(value);
+          dispatch(TOKEN(token));
+
+          getData(USER_KEY).then(user => {
+            if (user) {
+              const userLogin = JSON.parse(user);
+              dispatch(USER(userLogin));
+              dispatch(LOGIN(true));
+            }
+          });
+        } else {
+          dispatch(USER(null));
+          dispatch(LOGIN(false));
         }
       });
     }
